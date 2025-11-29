@@ -48,7 +48,7 @@ export default function App() {
 
       <section className="rounded-2xl border bg-white/90 dark:bg-gray-800/90 backdrop-blur p-4 shadow-sm">
         <h2 className="text-lg font-semibold mb-3">This Trimester Courses</h2>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto hidden sm:block">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-gray-600 dark:text-gray-300">
@@ -88,6 +88,36 @@ export default function App() {
             </tbody>
           </table>
         </div>
+        <div className="sm:hidden space-y-2">
+          {courses.map(c => (
+            <div key={c.id} className="rounded-xl border p-3 bg-white/90 dark:bg-gray-800/90">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-sm font-medium">Course</div>
+                <button
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-white bg-gradient-to-r from-rose-600 to-orange-600 shadow-sm"
+                  onClick={() => deleteCourse(c.id)}
+                >
+                  <Trash2 size={14} /> Delete
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <label className="text-xs text-gray-600">Credits
+                  <select className="mt-1 w-full bg-transparent border rounded px-2 py-2" value={c.credits}
+                    onChange={e => updateCourse(c.id, { credits: Number(e.target.value) })}>
+                    {[1,2,3,4,5].map(v => (<option key={v} value={v}>{v}</option>))}
+                  </select>
+                </label>
+                <label className="text-xs text-gray-600">Grade
+                  <select className="mt-1 w-full bg-transparent border rounded px-2 py-2" value={c.gradeLetter ?? ''}
+                    onChange={e => updateCourse(c.id, { gradeLetter: e.target.value as any })}>
+                    <option value="">Select</option>
+                    {['A','A-','B+','B','B-','C+','C','C-','D+','D','F'].map(g => (<option key={g} value={g}>{g}</option>))}
+                  </select>
+                </label>
+              </div>
+            </div>
+          ))}
+        </div>
         <button className="mt-3 text-sm px-3 py-2 rounded-md bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white shadow hover:shadow-md transition"
           onClick={() => addCourse({ code: '', credits: 3, gradeLetter: undefined, trimesterId: 'current' })}>
           Add Course
@@ -100,9 +130,10 @@ export default function App() {
           <button className="px-3 py-2 rounded-md bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white shadow hover:shadow-md transition" onClick={() => addRetake({ credits: 3, prevGradeLetter: 'C', currentGradeLetter: 'B' })}>Add Retake Course</button>
         </div>
         {retakes.length > 0 && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
+          <>
+            <div className="overflow-x-auto hidden sm:block">
+              <table className="w-full text-sm">
+                <thead>
                 <tr className="text-left text-gray-600 dark:text-gray-300">
                   <th className="py-1 pr-2">Credits</th>
                   <th className="py-1 pr-2">Previous Grade</th>
@@ -144,8 +175,44 @@ export default function App() {
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+              </table>
+            </div>
+            <div className="sm:hidden space-y-2">
+              {retakes.map(r => (
+                <div key={r.id} className="rounded-xl border p-3 bg-white/90 dark:bg-gray-800/90">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm font-medium">Retake</div>
+                    <button
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-white bg-gradient-to-r from-rose-600 to-orange-600 shadow-sm"
+                      onClick={() => deleteRetake(r.id)}
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <label className="text-xs text-gray-600">Credits
+                      <select className="mt-1 w-full bg-transparent border rounded px-2 py-2" value={r.credits}
+                        onChange={e => updateRetake(r.id, { credits: Number(e.target.value) })}>
+                        {[1,2,3,4,5].map(v => (<option key={v} value={v}>{v}</option>))}
+                      </select>
+                    </label>
+                    <label className="text-xs text-gray-600">Prev Grade
+                      <select className="mt-1 w-full bg-transparent border rounded px-2 py-2" value={r.prevGradeLetter}
+                        onChange={e => updateRetake(r.id, { prevGradeLetter: e.target.value as any })}>
+                        {['A','A-','B+','B','B-','C+','C','C-','D+','D','F'].map(g => (<option key={g} value={g}>{g}</option>))}
+                      </select>
+                    </label>
+                    <label className="text-xs text-gray-600">Current Grade
+                      <select className="mt-1 w-full bg-transparent border rounded px-2 py-2" value={r.currentGradeLetter}
+                        onChange={e => updateRetake(r.id, { currentGradeLetter: e.target.value as any })}>
+                        {['A','A-','B+','B','B-','C+','C','C-','D+','D','F'].map(g => (<option key={g} value={g}>{g}</option>))}
+                      </select>
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </section>
 
@@ -178,10 +245,10 @@ export default function App() {
       </div>
 
       {openModal && showResult && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOpenModal(false)}></div>
-          <div className="relative z-10 w-full max-w-2xl mx-4 rounded-2xl border shadow-2xl overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500">
-            <div className="p-5 text-white">
+          <div className="relative z-10 w-full sm:max-w-2xl mx-0 sm:mx-4 rounded-t-2xl sm:rounded-2xl border shadow-2xl overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 max-h-[90vh]">
+            <div className="p-5 text-white overflow-auto max-h-[90vh]">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-bold">Result Summary</h3>
                 <button className="rounded-full bg-white/20 hover:bg-white/30 px-3 py-1" onClick={() => setOpenModal(false)}>Close</button>
